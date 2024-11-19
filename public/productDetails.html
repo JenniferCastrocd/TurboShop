@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/styles.css">
+        <title>Productos para un cliente</title>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <h1 id="product-name"></h1>
+                <nav>
+                    <ul>
+                        <li></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <table id="product-details" class="product-details">
+            <tr>
+              <th>DESCRIPCIÓN</th>
+              <th>PRECIO</th>
+              <th>UNIDADES DISPONIBLES</th>
+            </tr>
+            <tr>    
+              <td id="product-description"></td>     
+              <td id="product-price"></td>
+              <td id="product-quantity"></td>
+            </tr>
+          </table>
+          <form>
+            <h1>¿Cuántas unidades deseas añadir?</h1>
+            <input type="number" id="quantity-input" name="quantity-input" min="0" value="1">
+            <button type="button" id='shopping-cart-button'>Añadir al carrito de compras</button>
+          </form> 
+          <footer>
+            <div class="container">
+                <p>TurboShop &copy; Isabella Hernandez & Karen Jurado 2024</p>
+            </div>
+        </footer>
+        <script type="module" src="js/productDetails.js"></script>
