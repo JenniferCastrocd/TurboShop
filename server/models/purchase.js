@@ -1,18 +1,38 @@
-class Purchase {
-    constructor(username, products) {
-        this.username = username;
-        this.products = products;
-        this.date = new Date();
-    }
+const mongoose = require('mongoose');
 
-    static addPurchase(purchase) {
-        Purchase.purchases.push(purchase);
+// Definición del esquema
+const userSchema = new mongoose.Schema(
+    {
+        username: {
+            type: String,
+            required: true, // Obligatorio
+            trim: true // Elimina espacios en blanco al principio y al final
+        },
+        products: [
+            {
+                name: {
+                    type: String,
+                    required: true
+                },
+                price: {
+                    type: Number,
+                    required: true,
+                    min: 0 // El precio no puede ser negativo
+                }
+            }
+        ],
+        date: {
+            type: Date,
+            default: Date.now // Fecha por defecto: fecha de creación
+        }
+    },
+    {
+        timestamps: true, // Agrega automáticamente createdAt y updatedAt
+        versionKey: false,
     }
+);
 
-    static getUserPurchases(username) {
-        return Purchase.purchases.filter(purchase => purchase.username === username);
-    }
-}
+// Crear el modelo
+const ModelUser = mongoose.model("purchase", userSchema);
 
-Purchase.purchases = [];
-module.exports = Purchase;
+module.exports = ModelUser;
