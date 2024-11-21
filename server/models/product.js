@@ -1,3 +1,5 @@
+const pool = require('../configpostgres'); // Asegúrate de que configpostgres está bien configurado
+
 class Product {
     constructor(name, description, price, quantity) {
         this.name = name;
@@ -6,23 +8,34 @@ class Product {
         this.quantity = quantity;
     }
 
-    static addProduct(product) {
-        Product.products.push(product);
+    // Agregar un producto a la base de datos
+    static async addProduct(product) {
+        try {
+            const query = `
+                INSERT INTO products (name, description, price, quantity)
+                VALUES ($1, $2, $3, $4)
+                RETURNING *;
+            `;
+            const values = [product.name, product.description, product.price, product.quantity];
+            const result = await pool.query(query, values);
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error al agregar el producto:', error);
+            throw error;
+        }
     }
 
-    static getAllProducts() {
-        return Product.products;
-    }
-
-    static updateProductQuantity(name, quantitySold) {
-        const product = Product.products.find(p => p.name === name);
-        if (product) {
-            product.quantity -= quantitySold;
-            console.log(`Updated quantity for product ${product.name} is now ${product.quantity}`);  // Añadir log para confirmar la actualización de la cantidad
+    // Obtener todos los productos
+    static async getAllProducts() {
+        try {
+            const query = 'SELECT * FROM products;';
+            const result = await pool.query(query);
+            return result.rows; // Retorna todos los productos
+        } catch (error) {
+            console.error('Error al obtener productos:', error);
+            throw error;
         }
     }
 }
 
-Product.products = [];
-Product.products.push(new Product("product", "pro", 10, 10))
 module.exports = Product;
