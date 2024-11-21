@@ -1,3 +1,5 @@
+const pool = require('../configpostgres');
+
 class Product {
     constructor(name, description, price, quantity) {
         this.name = name;

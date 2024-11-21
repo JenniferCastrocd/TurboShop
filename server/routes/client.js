@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/product');
 const Purchase = require('../models/purchase');
+const Invoice = require('../models/invoice')
+const Order = require('../models/order')
+const OrderItem = require('../models/order_item')
 
 // Ruta para recibir productos
 router.get('/products', (req, res) => {
@@ -15,9 +18,26 @@ router.get('/product', (req, res) => {
 });
 
 // Ruta para obtener las compras de un usuario
-router.get('/purchases', (req, res) => {
-  res.json(Purchase.getUserPurchases(req.query.username));
+router.get('/purchases', async (req, res) => {
+  const username = req.query.username;
+
+  if (!username) {
+      return res.status(400).json({ error: "El parámetro 'username' es requerido." });
+  }
+
+  try {
+      // Consulta las órdenes del usuario
+      const orders = await Order.getOrdersByUser(username);
+      if (orders.length === 0) {
+          return res.status(404).json({ message: "No se encontraron órdenes para el usuario proporcionado." });
+      }
+      res.json(orders);
+  } catch (error) {
+      console.error('Error al obtener las compras del usuario:', error);
+      res.status(500).json({ error: 'Error interno del servidor.' });
+  }
 });
+
 
 // Ruta para registrar una compra
 router.post('/purchase', (req, res) => {
