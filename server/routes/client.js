@@ -25,20 +25,24 @@ router.post('/purchase', (req, res) => {
   
   const username = req.body.username;
   const products = req.body.products.map(product => {
-    // Consultamos el producto en la lista para obtener el precio
+    // Consultamos el producto en la lista para obtener el precio y la cantidad
     const productData = Product.getAllProducts().find(p => p.name === product.productName);
 
     // Si el producto existe, calculamos el precio total (precio * cantidad)
     if (productData) {
       return {
         name: product.productName,
-        price: productData.price * product.productQuantity // Multiplicamos el precio por la cantidad
+        price: productData.price * product.productQuantity, // Precio total
+        unitPrice: productData.price,  // Guardar el precio unitario
+        units: product.productQuantity  // Guardar las unidades
       };
     } else {
       console.log(`Producto ${product.productName} no encontrado`);
       return {
         name: product.productName,
-        price: 0 // Precio por defecto si no se encuentra el producto
+        price: 0, // Precio por defecto si no se encuentra el producto
+        unitPrice: 0, // Precio unitario por defecto
+        units: 0      // Unidades por defecto
       };
     }
   });
@@ -55,8 +59,7 @@ router.post('/purchase', (req, res) => {
       console.log('Compra guardada en la base de datos');
       
       // Actualizar la cantidad de productos después de la compra
-      const products = req.body.products;
-      products.forEach(p => {
+      req.body.products.forEach(p => {
         console.log(p);
         Product.updateProductQuantity(p.productName, p.productQuantity); // Actualizamos la cantidad
         console.log(`Updated quantity for product ${p.productName}`);
