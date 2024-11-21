@@ -29,3 +29,24 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
+
+const User = require('./models/user');
+
+async function createDefaultAdmin() {
+    try {
+        const adminExists = await User.findUser('admin');
+        if (!adminExists) {
+            await User.addUser({
+                username: 'admin',
+                password: 'adminpassword',
+                role: 'admin',
+            });
+            console.log('Administrador predeterminado creado');
+        }
+    } catch (error) {
+        console.error('Error al crear administrador predeterminado:', error);
+    }
+}
+
+createDefaultAdmin();
+

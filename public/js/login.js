@@ -23,25 +23,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(userCredentials)
             })
-            .then(response => {
+            .then(async (response) => {
                 console.log('Response recibido:', response);
-                return response.json();
-            })
-            .then(data => {
-                console.log('Datos recibidos:', data);
-                localStorage["myUsername"]= userCredentials.username
-                localStorage.removeItem('shoppingCart'); // Limpiar el carrito después de la compra
-                if (data.success) {
-                    if (data.role === 'admin') {
-                        window.location.href = 'admin.html';
+            
+                // Verifica si la respuesta es JSON
+                try {
+                    const data = await response.json();
+                    console.log('Datos recibidos:', data);
+            
+                    if (data.success) {
+                        localStorage["myUsername"] = userCredentials.username;
+            
+                        if (data.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'client.html';
+                        }
                     } else {
-                        window.location.href = 'client.html';
+                        alert('Credenciales incorrectas');
                     }
-                } else {
-                    alert('Credenciales incorrectas');
+                } catch (err) {
+                    console.error('La respuesta no es JSON:', err);
+                    alert('Error inesperado en el servidor');
                 }
             })
             .catch(error => console.error('Error:', error));
+            
         });
     } else {
         console.error('Formulario no encontrado');
