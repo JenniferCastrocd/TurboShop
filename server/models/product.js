@@ -1,4 +1,18 @@
-const pool = require('../configpostgres'); // Asegúrate de que configpostgres está bien configurado
+const pool = require('../configpostgres'); // Configuración de PostgreSQL
+
+router.get('/product', async (req, res) => {
+    const productName = req.query.productName;
+    try {
+      const product = await Product.findOne({ name: productName }); // Ajusta según tu modelo
+      if (!product) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
+      }
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener producto', details: error.message });
+    }
+  });
+  
 
 class Product {
     constructor(name, description, price, quantity) {
@@ -8,7 +22,9 @@ class Product {
         this.quantity = quantity;
     }
 
-    // Agregar un producto a la base de datos
+    
+
+    // Agregar un producto
     static async addProduct(product) {
         try {
             const query = `
@@ -21,7 +37,7 @@ class Product {
             return result.rows[0];
         } catch (error) {
             console.error('Error al agregar el producto:', error);
-            throw error;
+            throw new Error('Error al agregar el producto.');
         }
     }
 
@@ -30,12 +46,35 @@ class Product {
         try {
             const query = 'SELECT * FROM products;';
             const result = await pool.query(query);
-            return result.rows; // Retorna todos los productos
+            return result.rows;
         } catch (error) {
             console.error('Error al obtener productos:', error);
-            throw error;
+            throw new Error('Error al obtener productos.');
         }
     }
+
+    // Actualizar cantidad de productos
+    static async updateProductQuantity(name, quantitySold) {
+        try {
+            const query = `
+                UPDATE products
+                SET quantity = quantity - $1
+                WHERE name = $2 AND quantity >= $1
+                RETURNING *;
+            `;
+            const values = [quantitySold, name];
+            const result = await pool.query(query, values);
+            if (result.rowCount === 0) {
+                throw new Error('Stock insuficiente o producto no encontrado.');
+            }
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error al actualizar la cantidad del producto:', error);
+            throw new Error('Error al actualizar la cantidad del producto.');
+        }
+    }
+
+    
 }
 
 module.exports = Product;

@@ -5,8 +5,13 @@ const purchaseRoutes = require('./routes/purchaseRoutes');
 const adminRoutes = require('./routes/admin');
 const clientRoutes = require('./routes/client');
 const authRoutes = require('./routes/auth');
+const path = require('path'); // Importa el módulo path
+const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
+
+app.use('/client/orders', require('./routes/orderRoutes'));
+
 
 // Conectar a la base de datos
 dbconnect();
@@ -14,12 +19,16 @@ dbconnect();
 // Middleware
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Rutas
 app.use('/purchase', purchaseRoutes);  // Rutas para el carrito de compras
 app.use('/admin', adminRoutes);        // Rutas para administración
 app.use('/client', clientRoutes);      // Rutas para clientes
 app.use('/auth', authRoutes);          // Rutas para autenticación
+app.use('/client/orders', orderRoutes);
+
+app.use(clientRoutes);
 
 // Archivos estáticos
 app.use(express.static('public'));

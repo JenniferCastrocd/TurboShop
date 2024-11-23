@@ -1,114 +1,102 @@
-
-var productName = localStorage["productName"];
-
 document.addEventListener('DOMContentLoaded', async function () {
   let storedShoppingCart = localStorage["shoppingCart"];
 
-  if (storedShoppingCart === undefined) {
+  if (!storedShoppingCart) {
+    console.log("El carrito está vacío.");
     return;
   }
 
   let shoppingCart = JSON.parse(storedShoppingCart);
-
   const table = document.getElementById('product-details');
   let total = 0;
   let totalUnits = 0;
 
-  for (let i = 0; i < shoppingCart.length; i++) {
-    const product = shoppingCart[i];
-    let productName = product.productName;
-    console.log("alo+aaaa" + productName);
-
-    try {
-      await fetch('client/product?productName=' + productName)
-        .then(response => response.json())
-        .then(data => {
-          console.log(data.name);
-          console.log(data.price);
-          console.log(data.quantity);
-
-          let tableRow = table.insertRow();
-          let cell1Name = tableRow.insertCell();
-          let cell3Description = tableRow.insertCell();
-          let cell4UnitPrice = tableRow.insertCell();
-          let cell5Units = tableRow.insertCell();
-          let cell6Subtotal = tableRow.insertCell();
-
-          cell1Name.innerHTML = data.name;
-          cell3Description.innerHTML = data.description;
-          cell4UnitPrice.innerHTML = data.price;
-          cell5Units.innerHTML = product.productQuantity;
-          totalUnits += product.productQuantity;
-
-          let subtotal = data.price * product.productQuantity;
-          total += subtotal;
-
-          cell6Subtotal.innerHTML = subtotal;
-          console.log("ESTE ES EL TOTAL" + total);
-        });
-
-    } catch (error) {
-      console.error('Error fetching products:', error);
+  try {
+    // Obtener todos los productos desde /client
+    const response = await fetch('/client');
+    if (!response.ok) {
+      throw new Error(`Error al obtener productos: ${response.statusText}`);
     }
-  }
 
-  const totalDiv = document.getElementById('total-div');
-  totalDiv.innerHTML = "TOTAL: "+total;
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error("No se pudieron cargar los productos desde el servidor.");
+    }
 
+    const allProducts = data.products;
 
+    for (let i = 0; i < shoppingCart.length; i++) {
+      const productInCart = shoppingCart[i];
+      const product = allProducts.find(p => p.name === productInCart.productName);
 
-  const purchaseButton = document.getElementById('purchase');
-  if (purchaseButton) {
-    purchaseButton.addEventListener('click', () => handlePurchase(shoppingCart));
-  } else {
-    console.error('Purchase button not found');
+      if (!product) {
+        console.error(`Producto "${productInCart.productName}" no encontrado.`);
+        continue;
+      }
+
+      let tableRow = table.insertRow();
+      let cell1Name = tableRow.insertCell();
+      let cell2Description = tableRow.insertCell();
+      let cell3UnitPrice = tableRow.insertCell();
+      let cell4Units = tableRow.insertCell();
+      let cell5Subtotal = tableRow.insertCell();
+
+      cell1Name.innerHTML = product.name;
+      cell2Description.innerHTML = product.description;
+      cell3UnitPrice.innerHTML = product.price;
+      cell4Units.innerHTML = productInCart.productQuantity;
+
+      let subtotal = product.price * productInCart.productQuantity;
+      total += subtotal;
+      totalUnits += productInCart.productQuantity;
+
+      cell5Subtotal.innerHTML = subtotal.toFixed(2);
+    }
+
+    const totalDiv = document.getElementById('total-div');
+    totalDiv.innerHTML = `TOTAL: $${total.toFixed(2)}`;
+
+    const purchaseButton = document.getElementById('purchase');
+    if (purchaseButton) {
+      purchaseButton.addEventListener('click', () => handlePurchase(shoppingCart));
+    } else {
+      console.error('Botón de compra no encontrado.');
+    }
+
+  } catch (error) {
+    console.error('Error al cargar el carrito:', error);
+    const totalDiv = document.getElementById('total-div');
+    totalDiv.innerHTML = '<p>Error al conectar con el servidor.</p>';
   }
 });
 
+// Función para procesar la compra
 async function handlePurchase(shoppingCart) {
   try {
-    // Verificar el stock antes de realizar la compra
-    for (const product of shoppingCart) {
-      const productName = product.productName;
-
-      await fetch('client/product?productName=' + productName)
-        .then(response => response.json())
-        .then(data => {
-          if (data.quantity < product.productQuantity) {
-            alert('No hay suficiente stock para el producto ' + productName);
-            return;
-          }
-        });
-    }
-
     const purchaseData = {
       username: localStorage.getItem("myUsername"),
-      products: shoppingCart
+      products: shoppingCart,
     };
 
-    await fetch('/client/purchase', { // Asegúrate de que la URL sea correcta
+    const response = await fetch('/client/purchase', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(purchaseData)
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      }
-      )
-      .then(data => {
-        console.log('Response from server:', data);
-        if (data.success) {
-          alert('Compra realizada correctamente');
-          localStorage.removeItem('shoppingCart'); // Limpiar el carrito después de la compra
-          window.location.href = '/client.html';
-        } else {
-          alert('Error al realizar la compra');
-        }
-      })
+      body: JSON.stringify(purchaseData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success) {
+      alert('Compra realizada correctamente.');
+      localStorage.removeItem('shoppingCart'); // Limpiar el carrito después de la compra
+      window.location.href = '/client.html';
+    } else {
+      alert('Error al realizar la compra.');
+    }
   } catch (error) {
-    console.error('Error during purchase:', error);
+    console.error('Error durante la compra:', error);
   }
 }

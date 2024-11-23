@@ -3,40 +3,42 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (!username) {
         alert("Por favor, inicia sesión primero.");
-        window.location.href = '/login.html'; // Redirige a la página de inicio de sesión si no hay usuario
+        window.location.href = '/login.html';
         return;
     }
 
     try {
-        const response = await fetch('/client/purchases?username=' + username);
-        const purchases = await response.json();
+        const response = await fetch(`/client/orders?username=${username}`);
+        if (!response.ok) {
+            throw new Error(`Error al obtener órdenes: ${response.statusText}`);
+        }
 
-        const purchaseCountDiv = document.getElementById('purchase-count');
-        const purchaseListDiv = document.getElementById('purchase-list');
+        const orders = await response.json();
 
-        // Mostrar el número de compras
-        purchaseCountDiv.innerHTML = `<p>Has realizado ${purchases.length} compras.</p>`;
+        const orderCountDiv = document.getElementById('purchase-count');
+        const orderListDiv = document.getElementById('purchase-list');
 
-        // Mostrar la lista de compras
-        if (purchases.length > 0) {
-            const purchaseList = document.createElement('ul');
-            purchases.forEach(purchase => {
+        orderCountDiv.innerHTML = `<p>Has realizado ${orders.length} órdenes.</p>`;
+
+        if (orders.length > 0) {
+            const orderList = document.createElement('ul');
+            orders.forEach(order => {
                 const listItem = document.createElement('li');
                 listItem.innerHTML = `
-                    <strong>Fecha:</strong> ${new Date(purchase.date).toLocaleString()} <br>
+                    <strong>Fecha:</strong> ${new Date(order.date).toLocaleString()} <br>
                     <strong>Productos:</strong>
                     <ul>
-                        ${purchase.products.map(product => `<li>${product.productName} - Cantidad: ${product.productQuantity}</li>`).join('')}
+                        ${order.products.map(product => `<li>${product.productName} - Cantidad: ${product.quantity}</li>`).join('')}
                     </ul>
                 `;
-                purchaseList.appendChild(listItem);
+                orderList.appendChild(listItem);
             });
-            purchaseListDiv.appendChild(purchaseList);
+            orderListDiv.appendChild(orderList);
         } else {
-            purchaseListDiv.innerHTML = '<p>No has realizado ninguna compra.</p>';
+            orderListDiv.innerHTML = '<p>No has realizado ninguna orden.</p>';
         }
     } catch (error) {
-        console.error('Error fetching purchases:', error);
-        alert('Error al obtener las compras. Por favor, inténtelo de nuevo más tarde.');
+        console.error('Error fetching orders:', error);
+        alert('Error al obtener las órdenes. Por favor, inténtelo más tarde.');
     }
 });
