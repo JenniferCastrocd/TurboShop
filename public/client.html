@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/styles.css">
-    <title>Cliente</title>
+    <title>Cliente - TurboShop</title>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>Hola!</h1>
-            <h2>Aquí tienes la lista de productos disponibles para ti.</h2>
+            <h1>Bienvenido a TurboShop</h1>
+            <h2>¡Explora nuestros productos disponibles!</h2>
             <nav>
                 <ul>
                     <li><a href="index.html">Inicio</a></li>
@@ -18,15 +18,20 @@
                     <li><a href="purchaseHistory.html">Historial de Compras</a></li>
                 </ul>
             </nav>
-            
         </div>
     </header>
+    <div class="profile">
+        <h2>Hola, <span id="username-display"></span> 👋</h2>
+        <p>Aquí tienes nuestra lista de productos</p>
+    </div>
     <div class="container">
-        <div id="product-list"></div>
+        <div class="products" id="product-list">
+            <!-- Los productos se renderizarán aquí -->
+        </div>
     </div>
     <footer>
         <div class="container">
-            <p>TurboShop &copy; </p>
+            <p>TurboShop &copy; 2024</p>
         </div>
     </footer>
     <script type="module" src="js/client.js"></script>

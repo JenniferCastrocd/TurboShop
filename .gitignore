@@ -1,0 +1,9 @@
+# Ignorar node_modules
+node_modules/
+
+# Ignorar archivos sensibles o secretos
+*.env
+*.pem
+*.key
+*.crt
+secrets/

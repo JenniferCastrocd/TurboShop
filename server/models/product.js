@@ -7,6 +7,7 @@ class Product {
         this.price = price;
         this.quantity = quantity;
     }
+    
 
     // Agregar un producto
     static async addProduct(product) {
@@ -57,6 +58,8 @@ class Product {
             throw new Error('Error al actualizar la cantidad del producto.');
         }
     }
+
+    
 }
 
 module.exports = Product;
