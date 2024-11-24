@@ -1,4 +1,4 @@
-const pool = require('../configpostgres');
+const pool = require('../configpostgres'); // Configuración de PostgreSQL
 
 class Product {
     constructor(name, description, price, quantity) {
@@ -8,23 +8,55 @@ class Product {
         this.quantity = quantity;
     }
 
-    static addProduct(product) {
-        Product.products.push(product);
+    // Agregar un producto
+    static async addProduct(product) {
+        try {
+            const query = `
+                INSERT INTO products (name, description, price, quantity)
+                VALUES ($1, $2, $3, $4)
+                RETURNING *;
+            `;
+            const values = [product.name, product.description, product.price, product.quantity];
+            const result = await pool.query(query, values);
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error al agregar el producto:', error);
+            throw new Error('Error al agregar el producto.');
+        }
     }
 
-    static getAllProducts() {
-        return Product.products;
+    // Obtener todos los productos
+    static async getAllProducts() {
+        try {
+            const query = 'SELECT * FROM products;';
+            const result = await pool.query(query);
+            return result.rows;
+        } catch (error) {
+            console.error('Error al obtener productos:', error);
+            throw new Error('Error al obtener productos.');
+        }
     }
 
-    static updateProductQuantity(name, quantitySold) {
-        const product = Product.products.find(p => p.name === name);
-        if (product) {
-            product.quantity -= quantitySold;
-            console.log(`Updated quantity for product ${product.name} is now ${product.quantity}`);  // Añadir log para confirmar la actualización de la cantidad
+    // Actualizar cantidad de productos
+    static async updateProductQuantity(name, quantitySold) {
+        try {
+            const query = `
+                UPDATE products
+                SET quantity = quantity - $1
+                WHERE name = $2 AND quantity >= $1
+                RETURNING *;
+            `;
+            const values = [quantitySold, name];
+            const result = await pool.query(query, values);
+            if (result.rowCount === 0) {
+                throw new Error('Stock insuficiente o producto no encontrado.');
+            }
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error al actualizar la cantidad del producto:', error);
+            throw new Error('Error al actualizar la cantidad del producto.');
         }
     }
 }
 
-Product.products = [];
-Product.products.push(new Product("product", "pro", 10, 10))
 module.exports = Product;

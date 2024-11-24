@@ -37,10 +37,10 @@ class Order {
     }
 
     // Obtener todas las órdenes de un usuario
-    static async getOrdersByUser(userId) {
+    static async getOrdersByUser(username) {
         try {
-            const query = `SELECT * FROM orders WHERE user_id = $1;`;
-            const result = await pool.query(query, [userId]);
+            const query = `SELECT * FROM orders WHERE username = $1;`;
+            const result = await pool.query(query, [username]);
             return result.rows;
         } catch (error) {
             console.error('Error al obtener órdenes del usuario:', error);

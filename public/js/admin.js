@@ -1,35 +1,40 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const productForm = document.getElementById('product-form');
 
-    productForm.addEventListener('submit', function(e) {
+    productForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const productData = {
-            name: document.getElementById('name').value,
-            description: document.getElementById('description').value,
-            price: document.getElementById('price').value,
-            quantity: document.getElementById('quantity').value
+            name: document.getElementById('name').value.trim(),
+            description: document.getElementById('description').value.trim(),
+            price: parseFloat(document.getElementById('price').value),
+            quantity: parseInt(document.getElementById('quantity').value, 10),
         };
 
-        console.log('Product data to be sent:', productData);  // Añadir log para ver los datos enviados
+        console.log('Datos del producto a enviar:', productData);
 
-        fetch('/admin/products', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(productData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Response from server:', data);  // Añadir log para ver la respuesta del servidor
+        try {
+            const response = await fetch('/admin/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData),
+            });
+
+            const data = await response.json();
+            console.log('Respuesta del servidor:', data);
+
             if (data.success) {
                 alert('Producto agregado con éxito');
-                productForm.reset() 
+                productForm.reset();
             } else {
-                alert('Error al agregar producto');
+                alert('Error al agregar producto: ' + data.message);
             }
-        })
-        .catch(error => console.error('Error:', error));
+        } catch (error) {
+            console.error('Error al agregar el producto:', error);
+            alert('Error al conectar con el servidor');
+        }
     });
 });
+

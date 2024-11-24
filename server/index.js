@@ -5,8 +5,12 @@ const purchaseRoutes = require('./routes/purchaseRoutes');
 const adminRoutes = require('./routes/admin');
 const clientRoutes = require('./routes/client');
 const authRoutes = require('./routes/auth');
+const path = require('path');
+
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Conectar a la base de datos
 dbconnect();

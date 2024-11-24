@@ -1,14 +1,28 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/product');
+const Product = require('../models/product'); // Modelo de producto
 
-router.post('/products', (req, res) => {
-    console.log('Request body:', req.body);  // Añadir log para ver los datos recibidos
-    const newProduct = new Product(req.body.name, req.body.description, req.body.price, req.body.quantity);
-    Product.addProduct(newProduct);
-    console.log('Product added:', newProduct);  // Añadir log para confirmar la adición del producto
-    res.status(201).json({ success: true });
+// Ruta para agregar un nuevo producto
+router.post('/products', async (req, res) => {
+    try {
+        const { name, description, price, quantity } = req.body;
+        const newProduct = await Product.addProduct({ name, description, price, quantity });
+        res.status(201).json({ success: true, message: 'Producto agregado con éxito', product: newProduct });
+    } catch (error) {
+        console.error('Error al agregar producto:', error);
+        res.status(500).json({ success: false, message: 'Error al agregar producto' });
+    }
 });
 
+// Ruta para obtener todos los productos
+router.get('/products', async (req, res) => {
+    try {
+        const products = await Product.getAllProducts();
+        res.json({ success: true, products });
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor' });
+    }
+});
 
 module.exports = router;
