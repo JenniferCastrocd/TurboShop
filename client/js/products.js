@@ -9,19 +9,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 productElement.classList.add('product');
 
                 productElement.innerHTML = `
-                    <h3 id="name-${item.product_id}">${item.name}</h3>
-                    <p>${item.description}</p>
-                    <p>Precio: $${item.price}</p>
-                    <input type="hidden" id="price-${item.product_id}" value="${item.price}">
-                    <p>Stock: ${item.quantity}</p>
-                    <img src="${item.image_url}" alt="${item.name}" width="200">
-                    <button class="view-details" data-item-id="${item.product_id}">Ver detalles</button>
-                    <button class="add-to-cart" data-item-id="${item.product_id}">Añadir al carrito</button>
-                    <div class="quantity-container" style="display: none;">
-                        <label for="quantity-${item.product_id}">Cantidad:</label>
-                        <input type="number" id="quantity-${item.product_id}" name="quantity" min="1" max="${item.quantity}" value="1">
-                        <button class="confirm-add" data-item-id="${item.product_id}">Confirmar</button>
+                    <div class="up">
+                        <img src="${item.image_url}" class="product-image" alt="${item.name}" width="200">
                     </div>
+                    
+                    <div class="center">
+                        <h3 id="name-${item.product_id}">${item.name}</h3>
+                        Descripción: ${item.description}<br>
+                        Precio: $${item.price}<br>
+                        <input type="hidden" id="price-${item.product_id}" value="${item.price}">
+                        Stock: ${item.quantity}<br>
+                    </div>
+                    
+                    <div class="down">
+                        <button class="view-details" data-item-id="${item.product_id}">Ver detalles</button>
+                        <button class="add-to-cart" data-item-id="${item.product_id}">Añadir al carrito</button>
+                        <div class="quantity-container" style="display: none;">
+                            <label for="quantity-${item.product_id}">Cantidad:</label>
+                            <input type="number" id="quantity-${item.product_id}" name="quantity" min="1" max="${item.quantity}" value="1">
+                            <button class="confirm-add" data-item-id="${item.product_id}">Confirmar</button>
+                        </div>
+                    </div>
+                    
                 `;
 
                 productList.appendChild(productElement);
@@ -38,12 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (viewDetailsButton) {
                     const itemId = viewDetailsButton.getAttribute('data-item-id');
-                    const item = items.find(i => i.product_id == itemId); // Buscar el producto en el array de items
+                    const item = items.find(i => i.product_id == itemId); 
 
                     // Rellenar el contenido del modal con los detalles del producto
                     modalName.textContent = item.name;
                     modalImage.src = item.image_url;
-                    modalDescription.textContent = item.description;
+                    modalDescription.textContent = `Descripción: ${item.description}`;
                     modalPrice.textContent = `Precio: $${item.price}`;
                     modalAttributes.innerHTML = ''; // Limpiar los atributos previos
 

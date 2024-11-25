@@ -10,7 +10,6 @@ let productsCollection;
 const connectMongoDB = async () => {
     try {
         await client.connect();
-        console.log('Conexión exitosa a MongoDB');
         const db = client.db('user_prueba');
         cartsCollection = db.collection('carts');
         productsCollection = db.collection('products');

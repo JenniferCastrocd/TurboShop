@@ -52,27 +52,43 @@ async function loadProducts() {
 function addProductToList(product) {
     const productList = document.getElementById('product-list');
 
-    const productItem = document.createElement('li');
+    // Crear un div para cada producto
+    const productItem = document.createElement('div');
+    productItem.classList.add('product-item');
     productItem.dataset.id = product.id;
+
+    // Contenido HTML del producto
     productItem.innerHTML = `
-        <strong>${product.name}</strong> - ${product.description} <br>
-        Precio: $${product.price} | Stock: ${product.quantity} <br>
-        <img src="${product.image_url}" alt="${product.name}" width="100"> <br>
+        <div class="left">
+            <img src="${product.image_url}" class="product-image" alt="${product.name}">
+        </div>
+        <div class="right">
+            <strong>${product.name}</strong><br>
+            Descripción: ${product.description}<br><br> 
+            Precio: $${product.price} | Stock: ${product.quantity} <br>
+        </div>
     `;
 
+    // Agregar atributos extra si existen
     if (product.attributes) {
         for (const [key, value] of Object.entries(product.attributes)) {
-            productItem.innerHTML += `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</p>`;
+            productItem.querySelector('.right').innerHTML += `${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}<br>`;
         }
     }
 
-    productItem.innerHTML += `<button class="delete-product">Eliminar</button>`;
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('delete-product');
+    deleteButton.textContent = 'Eliminar';
 
-    productItem.querySelector('.delete-product').addEventListener('click', async () => {
+    productItem.querySelector('.right').appendChild(deleteButton);
+
+    // Evento para eliminar el producto
+    deleteButton.addEventListener('click', async () => {
         await deleteProduct(product.product_id);
         productItem.remove();
     });
 
+    // Agregar el producto al listado
     productList.appendChild(productItem);
 }
 
@@ -175,6 +191,12 @@ document.getElementById('product-form').addEventListener('submit', async functio
             alert('Producto agregado exitosamente');
             addProductToList(data.item);
             document.getElementById('product-form').reset();
+
+            const extraAttributesContainer = document.getElementById('extra-attributes-container');
+            if (extraAttributesContainer) {
+                extraAttributesContainer.innerHTML = '';
+            }
+
         } else {
             alert(data.message || 'Error al agregar producto');
         }

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 orderElement.classList.add('order');
 
                 orderElement.innerHTML = `
-                    <h3>Orden ID: ${order.id}</h3>
+                    <h3>Compra ID: ${order.id}</h3>
                     <p>Fecha: ${new Date(order.date).toLocaleDateString()}</p>
                     <p>Total: $${order.total}</p>
                     <h4>Productos:</h4>
