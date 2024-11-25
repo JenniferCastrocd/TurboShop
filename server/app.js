@@ -429,7 +429,7 @@ app.post('/api/orders', authenticateJWT, async (req, res) => {
             // Obtener el stock del producto
             const stock = await getStockByProductId(item.itemId);
 
-            if (!stock || stock.cantidad < item.quantity) {
+            if (!stock || stock.quantity < item.quantity) {
                 return res.status(400).json({ message: `No hay suficiente stock para el producto ${product.name}.` });
             }
 
